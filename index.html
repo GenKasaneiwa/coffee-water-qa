@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>想定Q&amp;A</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --ink: #1f2328;
+    --muted: #6b6f76;
+    --line: #e4e0d6;
+    --accent: #2f6f8f;
+    --gen: #2f6f8f;
+    --gen-bg: #e3eff5;
+    --yuki: #8a5a2b;
+    --yuki-bg: #f4eadf;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    line-height: 1.75;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { padding: 32px 24px 64px; }
+
+  .controls {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--bg);
+    padding: 12px 0;
+    display: flex; justify-content: flex-end;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .btn {
+    font: inherit; font-size: .85rem;
+    padding: 6px 12px;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); color: var(--ink);
+    cursor: pointer;
+  }
+
+  details {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-weight: 600;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .num {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 2.2em;
+  }
+  .q { flex: 1; }
+  .who {
+    flex: none;
+    font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+    padding: 2px 8px; border-radius: 999px;
+    margin-top: 3px;
+  }
+  .who.GEN { color: var(--gen); background: var(--gen-bg); }
+  .who.YUKI { color: var(--yuki); background: var(--yuki-bg); }
+  .chev {
+    flex: none; width: 10px; height: 10px; margin-top: 8px;
+    border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg); transition: transform .15s;
+  }
+  details[open] .chev { transform: rotate(-135deg); margin-top: 12px; }
+  .a {
+    padding: 0 16px 16px calc(16px + 2.2em + 12px);
+    border-top: 1px dashed var(--line);
+    padding-top: 12px;
+  }
+  .a p { margin: 0; }
+
+  @media (max-width: 560px) {
+    .a { padding-left: 16px; }
+    summary { flex-wrap: wrap; }
+  }
+  @media print {
+    .controls { display: none; }
+    details { break-inside: avoid; }
+    details > .a { display: block !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="controls">
+    <button class="btn" id="toggle">すべて開く</button>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script>
+const QA = [
+  ["水質データはいつのものですか？ 「今日の水」ですか？", "GEN",
+   "今日の測定値ではありません。総硬度・pHは令和7年度の四半期ごとの値、アルカリ度は令和6年度の水質年報の値です。画面でも時期を明記しています。水道局の公開が年度単位なので、年1回取り込み直します。"],
+  ["給水栓の値と、自宅の蛇口から出る水は同じと言えますか？", "GEN",
+   "水道局の配水系統表で、住所と同じ系統の給水栓を引いています。ただしマンションの貯水槽や浄水器を通すと変わりうるので、目安として使ってもらう位置づけです。"],
+  ["水質からレシピを出す計算式の根拠は？ 検証しましたか？", "GEN",
+   "SCAの抽出用水の基準（総硬度68・アルカリ度40mg/L）と一般的な抽出理論から置いた推定式です。実験で検証した値ではないことを画面にも書いています。検証は社会実装期間でバリスタや利用者の評価を集めて行います。"],
+  ["生成AIは何をしていますか？ AIが間違ったらどうなりますか？", "GEN",
+   "数値は水質から計算式で決め、AIは味の言葉への翻訳と微調整だけです。AIが返した数値は湯温±2℃・湯量±15g・時間±20秒で検算し、外れたら計算値に戻します。AIが止まってもレシピは出ます。"],
+  ["スライド10の「利用者評価」はもう動いていますか？", "GEN",
+   "評価から補正する計算式は作ってありますが、いまの画面は感想を受け取って返すところまでで、記録はしていません。評価を蓄積してレシピに反映するのは社会実装期間でやります。"],
+  ["スライド14の「環境貢献の見える化」は実装済みですか？ 175本の根拠は？", "YUKI",
+   "構想段階です。175本は、1日1杯（約240mL）を365日続けると約87.6Lで、500mLペットボトル換算で約175本という計算です。"],
+  ["データの利用許諾は大丈夫ですか？ オープンデータカタログにありますか？", "GEN",
+   "水道局サイトで公開されているPDFをJSONに変換して使っています。オープンデータカタログには未登録ですが、サイトの規約に沿って水道局に事前に連絡し、「ぜひ使ってください」と返信をいただいています。出典「東京都水道局」は全ページに表示しています。"],
+  ["ビジネスとして続けられますか？ 収益は？", "YUKI",
+   "運用はCloudflareの無料枠に収まり、データ更新は年1回なので、維持費はほぼかかりません。収益化は、豆を売るロースターやカフェとの連携、水道水の利用促進を目指す行政との連携を想定しています。"],
+  ["コーヒーを淹れない人にも価値はありますか？", "YUKI",
+   "住所を選ぶだけで自分の水の硬度や東京の中での位置がわかるので、水質を知るだけでも使えます。課題提起で触れた「水道水を飲まない若い世代」が、まず自分の水に興味を持つ入口にしたいです。"],
+  ["ほかの地域や、コーヒー以外にも広げられますか？", "YUKI",
+   "同じ水質データの基盤のまま、お茶・美容・観賞魚や植物の水管理へ広げられます。他の自治体も水質検査結果を公開しているので、データを取り込めば他地域にも展開できます。"],
+  ["似たサービスはありませんか？ 独自性は？", "YUKI",
+   "過去5年のハッカソン作品324件に、水道水・水質・コーヒーを主題にしたものは0件でした。丁目単位で実測値を引き、それを抽出レシピまで落とし込んでいる点が独自です。"],
+  ["住所を入力させるのは、個人情報として問題ありませんか？", "GEN",
+   "選ぶのは丁目までで、番地は聞きません。住所から水質を引く処理はブラウザの中で完結します。サーバにデータベースは無く、入力内容は保存しません。リロードすると最初の画面に戻ります。"],
+  ["行政とどう連携していきますか？", "YUKI",
+   "社会実装期間中に事務局を通じて水道局に相談したいです。水道水のおいしさや地域差を伝えることは、水道局の広報とも方向が合うと考えています。"],
+];
+
+const list = document.getElementById("list");
+const toggle = document.getElementById("toggle");
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+QA.forEach(([question, person, answer], i) => {
+  const d = document.createElement("details");
+  d.innerHTML = `
+    <summary>
+      <span class="num">Q${i + 1}</span>
+      <span class="q">${esc(question)}</span>
+      <span class="who ${person}">${person}</span>
+      <span class="chev" aria-hidden="true"></span>
+    </summary>
+    <div class="a"><p>${esc(answer)}</p></div>`;
+  list.appendChild(d);
+});
+
+function syncToggle() {
+  const all = [...list.querySelectorAll("details")];
+  toggle.textContent = all.every(d => d.open) ? "すべて閉じる" : "すべて開く";
+}
+
+toggle.addEventListener("click", () => {
+  const all = [...list.querySelectorAll("details")];
+  const open = !all.every(d => d.open);
+  all.forEach(d => d.open = open);
+  syncToggle();
+});
+list.addEventListener("toggle", syncToggle, true);
+window.addEventListener("beforeprint", () => list.querySelectorAll("details").forEach(d => d.open = true));
+
+syncToggle();
+</script>
+</body>
+</html>
